@@ -34,17 +34,7 @@
                         >
                         <span class="info-value">G3 - G32</span>
                     </div>
-                    <div class="info-row">
-                        <span class="info-label"
-                            ><i class="bi bi-envelope"></i>Adresse
-                            email</span>
-                        <span class="info-value">hananchallal07@gmail.com</span>
-                    </div>
-                     <div class="info-row">
-                        <span class="info-label"
-                            ><i class="bi bi-telephone"></i>Téléphone</span>
-                        <span class="info-value">+212652383037</span>
-                    </div>
+                    
                     <div class="info-row">
                         <span class="info-label"><i class="bi bi-calendar3"></i> Année Universitaire</span
                         >

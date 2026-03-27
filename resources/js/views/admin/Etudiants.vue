@@ -1,6 +1,5 @@
 <template>
     <div>
-        <!-- Actions bar -->
         <div class="actions-bar">
             <div class="search-box">
                 <i class="bi bi-search"></i>
@@ -14,8 +13,6 @@
                 <i class="bi bi-plus"></i> Ajouter étudiant
             </button>
         </div>
-
-        <!-- Table -->
         <div class="table-card">
             <table class="data-table">
                 <thead>
@@ -64,6 +61,7 @@
                                 <button
                                     class="btn-icon danger"
                                     title="Supprimer"
+                                    @click="supprimerEtudiant(e.id)"
                                 >
                                     <i class="bi bi-trash"></i>
                                 </button>
@@ -117,11 +115,15 @@
                         </div>
                         <div class="form-group">
                             <label>Filière</label>
-                            <select v-model="newEtudiant.filiere">
+                            <select v-model="newEtudiant.filiere_id">
                                 <option value="">Choisir...</option>
-                                <option>3IIR</option>
-                                <option>2GC</option>
-                                <option>1CP</option>
+                                <option
+                                    v-for="f in filieres"
+                                    :key="f.id"
+                                    :value="f.id"
+                                >
+                                    {{ f.code }} — {{ f.nom }}
+                                </option>
                             </select>
                         </div>
                     </div>
@@ -149,72 +151,28 @@
 </template>
 
 <script>
+import axios from "../../axios.js";
+
 export default {
     name: "Etudiants",
     data() {
         return {
             search: "",
             showModal: false,
+            filieres: [],
+            etudiants: [],
             newEtudiant: {
                 nom: "",
                 cne: "",
                 email: "",
-                filiere: "",
+                filiere_id: "",
                 groupe: "",
             },
-            etudiants: [
-                {
-                    id: 1,
-                    nom: "Ali Benali",
-                    initials: "AB",
-                    email: "ali@univ.ma",
-                    cne: "R110234567",
-                    filiere: "3IIR",
-                    groupe: "G1",
-                    absences: 8,
-                },
-                {
-                    id: 2,
-                    nom: "Sara Idrissi",
-                    initials: "SI",
-                    email: "sara@univ.ma",
-                    cne: "R110234568",
-                    filiere: "3IIR",
-                    groupe: "G2",
-                    absences: 2,
-                },
-                {
-                    id: 3,
-                    nom: "Youssef Amrani",
-                    initials: "YA",
-                    email: "youssef@univ.ma",
-                    cne: "R110234569",
-                    filiere: "2GC",
-                    groupe: "G1",
-                    absences: 5,
-                },
-                {
-                    id: 4,
-                    nom: "Hind Tazi",
-                    initials: "HT",
-                    email: "hind@univ.ma",
-                    cne: "R110234570",
-                    filiere: "1CP",
-                    groupe: "G3",
-                    absences: 0,
-                },
-                {
-                    id: 5,
-                    nom: "Omar Cherkaoui",
-                    initials: "OC",
-                    email: "omar@univ.ma",
-                    cne: "R110234571",
-                    filiere: "3IIR",
-                    groupe: "G1",
-                    absences: 12,
-                },
-            ],
         };
+    },
+    async mounted() {
+        await this.chargerEtudiants();
+        await this.chargerFilieres();
     },
     computed: {
         filtered() {
@@ -227,26 +185,49 @@ export default {
         },
     },
     methods: {
-        ajouterEtudiant() {
-            if (!this.newEtudiant.nom || !this.newEtudiant.cne) return;
-            this.etudiants.push({
-                id: Date.now(),
-                initials: this.newEtudiant.nom
+        async chargerEtudiants() {
+            const res = await axios.get("/etudiants");
+            this.etudiants = res.data.map((e) => ({
+                id: e.id,
+                nom: e.user.name,
+                email: e.user.email,
+                cne: e.cne,
+                filiere: e.filiere.code,
+                groupe: e.groupe,
+                absences: 0,
+                initials: e.user.name
                     .split(" ")
                     .map((n) => n[0])
                     .join("")
-                    .toUpperCase(),
-                absences: 0,
-                ...this.newEtudiant,
-            });
-            this.newEtudiant = {
-                nom: "",
-                cne: "",
-                email: "",
-                filiere: "",
-                groupe: "",
-            };
-            this.showModal = false;
+                    .toUpperCase()
+                    .slice(0, 2),
+            }));
+        },
+        async chargerFilieres() {
+            const res = await axios.get("/filieres");
+            this.filieres = res.data;
+        },
+        async ajouterEtudiant() {
+            if (!this.newEtudiant.nom || !this.newEtudiant.cne) return;
+            try {
+                await axios.post("/etudiants", this.newEtudiant);
+                await this.chargerEtudiants();
+                this.newEtudiant = {
+                    nom: "",
+                    cne: "",
+                    email: "",
+                    filiere_id: "",
+                    groupe: "",
+                };
+                this.showModal = false;
+            } catch (err) {
+                alert(err.response?.data?.message || "Erreur");
+            }
+        },
+        async supprimerEtudiant(id) {
+            if (!confirm("Confirmer la suppression ?")) return;
+            await axios.delete(`/etudiants/${id}`);
+            await this.chargerEtudiants();
         },
     },
 };

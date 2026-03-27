@@ -4,14 +4,10 @@
       <p class="page-title">Bienvenue, {{ userName }} dans votre espace personnel</p>
     </div>
     <div class="navbar-right">
-
-      <!-- Notifications -->
       <div class="notif-btn" @click="toggleNotif">
         <i class="bi bi-bell"></i>
         <span v-if="notifCount > 0" class="notif-badge">{{ notifCount }}</span>
       </div>
-
-      <!-- Dropdown notif -->
       <div v-if="showNotif" class="notif-dropdown">
         <p class="notif-title">Notifications</p>
         <div class="notif-item" v-for="n in notifications" :key="n.id">
@@ -19,13 +15,9 @@
           <p class="notif-time">{{ n.time }}</p>
         </div>
       </div>
-
-      <!-- Avatar + dropdown -->
       <div class="avatar-wrapper" @click="toggleUserMenu">
         <div class="user-avatar">{{ userInitials }}</div>
       </div>
-
-      <!-- User dropdown menu -->
       <div v-if="showUserMenu" class="user-dropdown">
         <div class="user-dropdown-header">
           <div class="user-avatar-lg">{{ userInitials }}</div>
@@ -58,7 +50,6 @@ export default {
       showNotif: false,
       showUserMenu: false,
       notifications: [
-        { id: 1, text: 'Challal Hanane a 3 absences non justifiées', time: 'Il y a 10 min' },
         { id: 2, text: 'Nouveau rapport disponible',             time: 'Il y a 1h'     },
         { id: 3, text: 'Prof. Alami a saisi les absences',       time: 'Il y a 2h'     },
       ]
@@ -90,7 +81,6 @@ export default {
       try {
         await axios.post('/logout')
       } catch (e) {
-        // on continue même si l'API échoue
       } finally {
         localStorage.removeItem('token')
         localStorage.removeItem('user')
