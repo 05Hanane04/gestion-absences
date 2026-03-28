@@ -72,7 +72,6 @@
             </table>
         </div>
 
-        <!-- Modal ajout -->
         <div
             v-if="showModal"
             class="modal-overlay"
@@ -134,6 +133,12 @@
                             <option>G1</option>
                             <option>G2</option>
                             <option>G3</option>
+                            <option>G4</option>
+                            <option>G5</option>
+                            <option>G6</option>
+                            <option>G7</option>
+                            <option>G8</option>
+                            <option>G9</option>
                         </select>
                     </div>
                 </div>

@@ -1,51 +1,54 @@
 <template>
     <div>
         <div class="profil-grid">
-            <!-- Carte profil -->
             <div class="profil-card">
                 <div class="profil-avatar-section">
                     <div class="big-avatar">{{ userInitials }}</div>
                     <h2 class="profil-name">{{ user.name }}</h2>
                     <p class="profil-email">{{ user.email }}</p>
                     <div class="profil-badges">
-                        <span class="badge-filiere">3IIR</span>
-                        <span class="badge-groupe">Groupe G3</span>
+                        <span class="badge-filiere">{{
+                            etudiant.filiere?.code
+                        }}</span>
+                        <span class="badge-groupe"
+                            >Groupe {{ etudiant.groupe }}</span
+                        >
                     </div>
                 </div>
 
                 <div class="profil-info">
                     <div class="info-row">
-                        <span class="info-label"
-                            ><i class="bi bi-credit-card"></i>Matricule</span
-                        >
-                        <span class="info-value">C-2026-076859</span>
+                        <span class="info-label">
+                            <i class="bi bi-credit-card"></i> CNE
+                        </span>
+                        <span class="info-value">{{ etudiant.cne }}</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label"
-                            ><i class="bi bi-book"></i> Filière</span
-                        >
-                        <span class="info-value"
-                            >Ingénierie Informatique et Réseaux</span
-                        >
+                        <span class="info-label">
+                            <i class="bi bi-book"></i> Filière
+                        </span>
+                        <span class="info-value">{{
+                            etudiant.filiere?.nom
+                        }}</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label"
-                            ><i class="bi bi-people"></i> Groupe</span
-                        >
-                        <span class="info-value">G3 - G32</span>
+                        <span class="info-label">
+                            <i class="bi bi-people"></i> Groupe
+                        </span>
+                        <span class="info-value">{{ etudiant.groupe }}</span>
                     </div>
-                    
                     <div class="info-row">
-                        <span class="info-label"><i class="bi bi-calendar3"></i> Année Universitaire</span
-                        >
-                        <span class="info-value">3ème année - 2025/2026</span>
+                        <span class="info-label">
+                            <i class="bi bi-calendar3"></i> Année
+                        </span>
+                        <span class="info-value">3ème année — 2025/2026</span>
                     </div>
                 </div>
             </div>
-
             <div class="right-col">
                 <div class="resume-card">
                     <p class="card-title">Résumé des absences</p>
+
                     <div class="resume-stats">
                         <div class="resume-stat">
                             <p class="rs-value">{{ totalAbsences }}h</p>
@@ -59,21 +62,31 @@
                             <p class="rs-value">{{ justifiees }}h</p>
                             <p class="rs-label">Justifiées</p>
                         </div>
+                        <div class="resume-stat warning">
+                            <p class="rs-value">{{ enAttente }}h</p>
+                            <p class="rs-label">En attente</p>
+                        </div>
                     </div>
-
-                    <!-- Barre de progression -->
                     <div class="progress-section">
                         <div class="progress-header">
                             <span class="progress-label"
                                 >Seuil d'absences autorisées</span
                             >
-                            <span class="progress-pct"
-                                >{{
+                            <span
+                                class="progress-pct"
+                                :style="{
+                                    color:
+                                        totalAbsences >= seuilMax
+                                            ? '#E24B4A'
+                                            : '#3c9298',
+                                }"
+                            >
+                                {{
                                     Math.round(
                                         (totalAbsences / seuilMax) * 100,
                                     )
-                                }}%</span
-                            >
+                                }}%
+                            </span>
                         </div>
                         <div class="progress-bar">
                             <div
@@ -95,6 +108,55 @@
                             {{ totalAbsences }}h / {{ seuilMax }}h maximum
                             autorisées
                         </p>
+                        <div
+                            v-if="totalAbsences >= seuilMax"
+                            class="alert-danger"
+                        >
+                            <i class="bi bi-exclamation-triangle"></i>
+                            Seuil maximum atteint — contactez l'administration
+                        </div>
+                    </div>
+                </div>
+                <div class="modules-card">
+                    <p class="card-title">Absences par module</p>
+
+                    <div v-if="absencesParModule.length === 0" class="no-data">
+                        Aucune absence enregistrée
+                    </div>
+
+                    <div
+                        v-for="m in absencesParModule"
+                        :key="m.module"
+                        class="module-row"
+                    >
+                        <div class="module-info">
+                            <span class="module-nom">{{ m.module }}</span>
+                            <div class="module-right">
+                                <span class="module-h">{{ m.heures }}h</span>
+                                <span
+                                    class="module-badge"
+                                    :class="
+                                        m.heures > 4
+                                            ? 'badge-danger'
+                                            : 'badge-ok'
+                                    "
+                                >
+                                    {{ m.heures > 4 ? "Critique" : "OK" }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="module-bar">
+                            <div
+                                class="module-fill"
+                                :style="{
+                                    width:
+                                        Math.min((m.heures / 8) * 100, 100) +
+                                        '%',
+                                    background:
+                                        m.heures > 4 ? '#E24B4A' : '#3c9298',
+                                }"
+                            ></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -103,18 +165,16 @@
 </template>
 
 <script>
+import axios from "../../axios.js";
+
 export default {
     name: "Profil",
     data() {
         return {
+            loading: true,
             seuilMax: 16,
-            absencesParModule: [
-                { module: "Algorithmique", heures: 4, color: "#3c9298" },
-                { module: "Réseaux", heures: 2, color: "#185FA5" },
-                { module: "Maths", heures: 2, color: "#534AB7" },
-                { module: "POO Java", heures: 2, color: "#0F6E56" },
-                { module: "BD", heures: 2, color: "#854F0B" },
-            ],
+            etudiant: {},
+            absences: [],
         };
     },
     computed: {
@@ -130,13 +190,59 @@ export default {
                 .slice(0, 2);
         },
         totalAbsences() {
-            return this.absencesParModule.reduce((s, m) => s + m.heures, 0);
+            return this.absences.reduce((s, a) => s + 2, 0);
         },
         nonJustifiees() {
-            return 6;
+            return this.absences
+                .filter((a) => a.statut === "non-justifiee")
+                .reduce((s) => s + 2, 0);
         },
         justifiees() {
-            return this.totalAbsences - this.nonJustifiees;
+            return this.absences
+                .filter((a) => a.statut === "justifiee")
+                .reduce((s) => s + 2, 0);
+        },
+        enAttente() {
+            return this.absences
+                .filter((a) => a.statut === "en-attente")
+                .reduce((s) => s + 2, 0);
+        },
+        absencesParModule() {
+            const map = {};
+            this.absences.forEach((a) => {
+                const nom = a.seance?.module?.nom || "Inconnu";
+                if (!map[nom]) map[nom] = 0;
+                map[nom] += 2;
+            });
+            return Object.entries(map).map(([module, heures]) => ({
+                module,
+                heures,
+            }));
+        },
+    },
+    async mounted() {
+        await this.chargerProfil();
+    },
+    methods: {
+        async chargerProfil() {
+            try {
+                this.loading = true;
+                const userId = this.user.id;
+
+                const resEtudiants = await axios.get("/etudiants");
+                this.etudiant =
+                    resEtudiants.data.find((e) => e.user_id === userId) || {};
+                if (this.etudiant.id) {
+                    const resAbsences = await axios.get(
+                        `/absences/etudiant/${this.etudiant.id}`,
+                    );
+                    this.absences = resAbsences.data;
+                }
+            } catch (err) {
+                console.error("Erreur chargement profil", err);
+            } finally {
+                this.loading = false;
+            }
         },
     },
 };
@@ -145,7 +251,7 @@ export default {
 <style scoped>
 .profil-grid {
     display: grid;
-    grid-template-columns: 280px 1fr;
+    grid-template-columns: 300px 1fr;
     gap: 16px;
     align-items: start;
 }
@@ -154,7 +260,6 @@ export default {
     border-radius: 10px;
     border: 0.5px solid #e5e7eb;
     overflow: hidden;
-    width: 400px;
 }
 .profil-avatar-section {
     background: #e8f5f6;
@@ -241,10 +346,7 @@ export default {
     flex-direction: column;
     gap: 14px;
 }
-.resume-card {
-    width: 550px;
-    margin-left: 130px;
-}
+
 .resume-card,
 .modules-card {
     background: white;
@@ -261,7 +363,7 @@ export default {
 
 .resume-stats {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 10px;
     margin-bottom: 20px;
 }
@@ -277,6 +379,9 @@ export default {
 .resume-stat.success {
     background: #e1f5ee;
 }
+.resume-stat.warning {
+    background: #faeeda;
+}
 .rs-value {
     margin: 0;
     font-size: 22px;
@@ -288,6 +393,9 @@ export default {
 }
 .resume-stat.success .rs-value {
     color: #0f6e56;
+}
+.resume-stat.warning .rs-value {
+    color: #854f0b;
 }
 .rs-label {
     margin: 4px 0 0;
@@ -307,10 +415,6 @@ export default {
 .progress-label {
     color: #6b7280;
 }
-.progress-pct {
-    color: #111827;
-    font-weight: 500;
-}
 .progress-bar {
     height: 6px;
     background: #f3f4f6;
@@ -328,24 +432,63 @@ export default {
     color: #9ca3af;
 }
 
+.alert-danger {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: #fcebeb;
+    color: #a32d2d;
+    border-radius: 8px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.no-data {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 13px;
+    padding: 20px 0;
+}
+
 .module-row {
-    margin-bottom: 12px;
+    margin-bottom: 14px;
 }
 .module-info {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 4px;
-    font-size: 12px;
+    align-items: center;
+    margin-bottom: 6px;
+}
+.module-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 .module-nom {
+    font-size: 13px;
     color: #6b7280;
 }
 .module-h {
+    font-size: 13px;
     color: #111827;
     font-weight: 500;
 }
+.module-badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 20px;
+}
+.badge-ok {
+    background: #e1f5ee;
+    color: #085041;
+}
+.badge-danger {
+    background: #fcebeb;
+    color: #a32d2d;
+}
 .module-bar {
-    height: 5px;
+    height: 6px;
     background: #f3f4f6;
     border-radius: 3px;
     overflow: hidden;

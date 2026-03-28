@@ -1,6 +1,5 @@
 <template>
     <div>
-        <!-- Stats rapides -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-header">
@@ -25,7 +24,7 @@
                 <p class="stat-value" style="color: #e24b4a">
                     {{ nonJustifiees }}h
                 </p>
-                <p class="stat-trend danger" v-if="nonJustifiees >= 4">
+                <p class="stat-trend danger" v-if="nonJustifiees >= 8">
                     ⚠ Seuil critique approché
                 </p>
                 <p class="stat-trend muted" v-else>En règle</p>
@@ -78,8 +77,14 @@
                     </select>
                 </div>
             </div>
+            <div
+                v-if="loading"
+                style="text-align: center; padding: 30px; color: #9ca3af"
+            >
+                <i class="bi bi-arrow-repeat"></i> Chargement...
+            </div>
 
-            <table class="abs-table">
+            <table v-else class="abs-table">
                 <thead>
                     <tr>
                         <th>Module</th>
@@ -92,14 +97,21 @@
                 </thead>
                 <tbody>
                     <tr v-for="abs in filtered" :key="abs.id">
-                        <td class="bold">{{ abs.module }}</td>
-                        <td class="muted">{{ abs.prof }}</td>
-                        <td class="muted">{{ abs.date }}</td>
-                        <td class="muted">{{ abs.seance }}</td>
-                        <td class="muted">{{ abs.duree }}h</td>
+                        <td class="bold">{{ abs.seance?.module?.nom }}</td>
+                        <td class="muted">
+                            {{ abs.seance?.module?.professeur?.user?.name }}
+                        </td>
+                        <td class="muted">
+                            {{ formatDate(abs.seance?.date) }}
+                        </td>
+                        <td class="muted">
+                            {{ formatHeure(abs.seance?.heure_debut) }} -
+                            {{ formatHeure(abs.seance?.heure_fin) }}
+                        </td>
+                        <td class="muted">2h</td>
                         <td>
                             <span class="badge-statut" :class="abs.statut">
-                                {{ abs.statutLabel }}
+                                {{ statutLabel(abs.statut) }}
                             </span>
                         </td>
                     </tr>
@@ -122,106 +134,108 @@
 </template>
 
 <script>
+import axios from "../../axios.js";
+
 export default {
     name: "MesAbsences",
     data() {
         return {
+            loading: true,
             filtreStatut: "",
             filtreModule: "",
-            absences: [
-                {
-                    id: 1,
-                    module: "PHP / Laravel",
-                    prof: "Ali Benali",
-                    date: "26/03/2026",
-                    seance: "08h - 10h",
-                    duree: 2,
-                    statut: "non-justifiee",
-                    statutLabel: "Non justifiée",
-                },
-                {
-                    id: 2,
-                    module: "Réseaux Informatiques",
-                    prof: "Sara Idrissi",
-                    date: "24/03/2026",
-                    seance: "10h - 12h",
-                    duree: 2,
-                    statut: "justifiee",
-                    statutLabel: "Justifiée",
-                },
-                {
-                    id: 3,
-                    module: "SQL Server",
-                    prof: "Youssef Amrani",
-                    date: "20/03/2026",
-                    seance: "14h - 16h",
-                    duree: 2,
-                    statut: "en-attente",
-                    statutLabel: "En attente",
-                },
-                {
-                    id: 4,
-                    module: "Programmation JavaScript",
-                    prof: "Hind Tazi",
-                    date: "18/03/2026",
-                    seance: "08h - 10h",
-                    duree: 2,
-                    statut: "non-justifiee",
-                    statutLabel: "Non justifiée",
-                },
-                {
-                    id: 5,
-                    module: "Base de Données",
-                    prof: "Omar Cherkaoui",
-                    date: "15/03/2026",
-                    seance: "16h - 18h",
-                    duree: 2,
-                    statut: "justifiee",
-                    statutLabel: "Justifiée",
-                },
-                {
-                    id: 6,
-                    module: "Conception Orientée Objet",
-                    prof: "Younes Bennani",
-                    date: "12/03/2026",
-                    seance: "08h - 10h",
-                    duree: 2,
-                    statut: "non-justifiee",
-                    statutLabel: "Non justifiée",
-                },
-            ],
+            absences: [],
+            etudiantId: null,
         };
     },
     computed: {
+        user() {
+            return JSON.parse(localStorage.getItem("user") || "{}");
+        },
+
         modules() {
-            return [...new Set(this.absences.map((a) => a.module))];
+            return [
+                ...new Set(
+                    this.absences
+                        .map((a) => a.seance?.module?.nom)
+                        .filter(Boolean),
+                ),
+            ];
         },
         filtered() {
             return this.absences.filter((a) => {
                 const matchStatut =
                     !this.filtreStatut || a.statut === this.filtreStatut;
                 const matchModule =
-                    !this.filtreModule || a.module === this.filtreModule;
+                    !this.filtreModule ||
+                    a.seance?.module?.nom === this.filtreModule;
                 return matchStatut && matchModule;
             });
         },
         totalAbsences() {
-            return this.absences.reduce((s, a) => s + a.duree, 0);
+            return this.absences.length * 2;
         },
         nonJustifiees() {
-            return this.absences
-                .filter((a) => a.statut === "non-justifiee")
-                .reduce((s, a) => s + a.duree, 0);
+            return (
+                this.absences.filter((a) => a.statut === "non-justifiee")
+                    .length * 2
+            );
         },
         justifiees() {
-            return this.absences
-                .filter((a) => a.statut === "justifiee")
-                .reduce((s, a) => s + a.duree, 0);
+            return (
+                this.absences.filter((a) => a.statut === "justifiee").length * 2
+            );
         },
         enAttente() {
-            return this.absences
-                .filter((a) => a.statut === "en-attente")
-                .reduce((s, a) => s + a.duree, 0);
+            return (
+                this.absences.filter((a) => a.statut === "en-attente").length *
+                2
+            );
+        },
+    },
+    async mounted() {
+        await this.chargerAbsences();
+    },
+    methods: {
+        async chargerAbsences() {
+            try {
+                this.loading = true;
+                const resEtudiants = await axios.get("/etudiants");
+                const etudiant = resEtudiants.data.find(
+                    (e) => e.user_id === this.user.id,
+                );
+
+                if (etudiant) {
+                    this.etudiantId = etudiant.id;
+                    const res = await axios.get(
+                        `/absences/etudiant/${etudiant.id}`,
+                    );
+                    this.absences = res.data;
+                }
+            } catch (err) {
+                console.error("Erreur chargement absences", err);
+            } finally {
+                this.loading = false;
+            }
+        },
+        formatDate(date) {
+            if (!date) return "";
+            return new Date(date).toLocaleDateString("fr-FR", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+            });
+        },
+        formatHeure(heure) {
+            if (!heure) return "";
+            return heure.substring(0, 5).replace(":", "h");
+        },
+        statutLabel(statut) {
+            const labels = {
+                justifiee: "Justifiée",
+                "non-justifiee": "Non justifiée",
+                "en-attente": "En attente",
+            };
+            return labels[statut] || statut;
         },
     },
 };

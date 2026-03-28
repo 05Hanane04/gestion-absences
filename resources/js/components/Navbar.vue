@@ -4,17 +4,6 @@
       <p class="page-title">Bienvenue, {{ userName }} dans votre espace personnel</p>
     </div>
     <div class="navbar-right">
-      <div class="notif-btn" @click="toggleNotif">
-        <i class="bi bi-bell"></i>
-        <span v-if="notifCount > 0" class="notif-badge">{{ notifCount }}</span>
-      </div>
-      <div v-if="showNotif" class="notif-dropdown">
-        <p class="notif-title">Notifications</p>
-        <div class="notif-item" v-for="n in notifications" :key="n.id">
-          <p class="notif-text">{{ n.text }}</p>
-          <p class="notif-time">{{ n.time }}</p>
-        </div>
-      </div>
       <div class="avatar-wrapper" @click="toggleUserMenu">
         <div class="user-avatar">{{ userInitials }}</div>
       </div>
@@ -113,40 +102,6 @@ export default {
   gap: 12px;
   position: relative;
 }
-.notif-btn {
-  position: relative;
-  width: 34px; height: 34px;
-  border-radius: 8px;
-  border: 0.5px solid #e5e7eb;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; font-size: 15px; color: #6b7280;
-}
-.notif-btn:hover { background: #f3f4f6; }
-.notif-badge {
-  position: absolute;
-  top: -4px; right: -4px;
-  width: 15px; height: 15px;
-  background: #E24B4A;
-  border-radius: 50%;
-  font-size: 9px; color: white;
-  display: flex; align-items: center; justify-content: center;
-}
-.notif-dropdown {
-  position: absolute;
-  top: 44px; right: 46px;
-  width: 280px;
-  background: white;
-  border: 0.5px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 12px;
-  z-index: 100;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-}
-.notif-title { font-size: 12px; font-weight: 500; color: #9ca3af; margin: 0 0 10px; }
-.notif-item  { padding: 8px 0; border-bottom: 0.5px solid #f3f4f6; }
-.notif-item:last-child { border-bottom: none; }
-.notif-text  { margin: 0; font-size: 13px; color: #111827; }
-.notif-time  { margin: 2px 0 0; font-size: 11px; color: #9ca3af; }
 
 .avatar-wrapper { cursor: pointer; }
 .user-avatar {
@@ -158,7 +113,6 @@ export default {
   display: flex; align-items: center; justify-content: center;
 }
 
-/* User dropdown */
 .user-dropdown {
   position: absolute;
   top: 44px; right: 0;
