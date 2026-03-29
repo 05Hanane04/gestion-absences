@@ -22,11 +22,11 @@
         <!-- Charts -->
         <div class="charts-grid">
             <div class="chart-card large">
-                <p class="card-title">Absences par semaine</p>
+                <p class="card-title">Absences par module</p>
                 <canvas id="barChart" height="100"></canvas>
             </div>
             <div class="chart-card">
-                <p class="card-title">Par filière</p>
+                <p class="card-title">Par statut</p>
                 <canvas id="doughnutChart" height="180"></canvas>
             </div>
         </div>
@@ -39,10 +39,16 @@
                     >Voir tout →</router-link
                 >
             </div>
-            <table class="abs-table">
+            <div
+                v-if="loading"
+                style="text-align: center; padding: 20px; color: #9ca3af"
+            >
+                Chargement...
+            </div>
+            <table v-else class="abs-table">
                 <thead>
                     <tr>
-                        <th>Étudiant(e)</th>
+                        <th>Étudiant</th>
                         <th>Module</th>
                         <th>Professeur</th>
                         <th>Date</th>
@@ -50,22 +56,38 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="abs in recentAbsences" :key="abs.id">
+                    <tr v-for="abs in absencesRecentes" :key="abs.id">
                         <td>
                             <div class="etudiant-cell">
                                 <div class="mini-avatar">
-                                    {{ abs.initials }}
+                                    {{ initials(abs.etudiant?.user?.name) }}
                                 </div>
-                                {{ abs.nom }}
+                                {{ abs.etudiant?.user?.name }}
                             </div>
                         </td>
-                        <td class="muted">{{ abs.module }}</td>
-                        <td class="muted">{{ abs.nom }}</td>
-                        <td class="muted">{{ abs.date }}</td>
+                        <td class="muted">{{ abs.seance?.module?.nom }}</td>
+                        <td class="muted">
+                            {{ abs.seance?.module?.professeur?.user?.name }}
+                        </td>
+                        <td class="muted">
+                            {{ formatDate(abs.seance?.date) }}
+                        </td>
                         <td>
                             <span class="badge-statut" :class="abs.statut">
-                                {{ abs.statutLabel }}
+                                {{ statutLabel(abs.statut) }}
                             </span>
+                        </td>
+                    </tr>
+                    <tr v-if="absencesRecentes.length === 0">
+                        <td
+                            colspan="5"
+                            style="
+                                text-align: center;
+                                padding: 20px;
+                                color: #9ca3af;
+                            "
+                        >
+                            Aucune absence enregistrée
                         </td>
                     </tr>
                 </tbody>
@@ -76,113 +98,116 @@
 
 <script>
 import { Chart, registerables } from "chart.js";
+import axios from "../../axios.js";
 Chart.register(...registerables);
 
 export default {
     name: "DashboardAdmin",
     data() {
         return {
-            stats: [
+            loading: true,
+            absences: [],
+            etudiants: [],
+            professeurs: [],
+            modules: [],
+            barChart: null,
+            doughnutChart: null,
+        };
+    },
+    computed: {
+        stats() {
+            const nonJust = this.absences.filter(
+                (a) => a.statut === "non-justifiee",
+            ).length;
+            return [
                 {
                     label: "Total étudiants",
-                    value: "342",
-                    trend: "+12 ce mois",
+                    value: this.etudiants.length,
+                    trend: "inscrits",
                     trendColor: "#3c9298",
                     icon: "bi bi-people",
-                    iconBg: "#E1F5EE",
+                    iconBg: "#e8f5f6",
                     iconColor: "#3c9298",
                 },
                 {
-                    label: "Absences aujourd'hui",
-                    value: "28",
-                    trend: "+5 vs hier",
+                    label: "Absences totales",
+                    value: this.absences.length,
+                    trend: nonJust + " non justifiées",
                     trendColor: "#E24B4A",
                     icon: "bi bi-exclamation-circle",
                     iconBg: "#FCEBEB",
                     iconColor: "#A32D2D",
                 },
                 {
-                    label: "Professeurs actifs",
-                    value: "24",
-                    trend: "stable",
+                    label: "Professeurs",
+                    value: this.professeurs.length,
+                    trend: "actifs",
                     trendColor: "#9ca3af",
                     icon: "bi bi-person-badge",
                     iconBg: "#E6F1FB",
                     iconColor: "#185FA5",
                 },
                 {
-                    label: "Taux d'absence",
-                    value: "8.2%",
-                    trend: "+1.2% ce mois",
-                    trendColor: "#E24B4A",
-                    icon: "bi bi-bar-chart-line",
+                    label: "Modules",
+                    value: this.modules.length,
+                    trend: "ce semestre",
+                    trendColor: "#9ca3af",
+                    icon: "bi bi-book",
                     iconBg: "#FAEEDA",
                     iconColor: "#854F0B",
                 },
-            ],
-            recentAbsences: [
-                {
-                    id: 1,
-                    nom: "Ali Benali",
-                    initials: "AB",
-                    module: "PHP / Laravel",
-                    date: "26/03/2026",
-                    statut: "non-justifiee",
-                    statutLabel: "Non justifiée",
-                },
-                {
-                    id: 2,
-                    nom: "Sara Idrissi",
-                    initials: "SI",
-                    module: "Réseaux Informatiques",
-                    date: "26/03/2026",
-                    statut: "justifiee",
-                    statutLabel: "Justifiée",
-                },
-                {
-                    id: 3,
-                    nom: "Youssef Amrani",
-                    initials: "YA",
-                    module: "SQL Server",
-                    date: "25/03/2026",
-                    statut: "en-attente",
-                    statutLabel: "En attente",
-                },
-                {
-                    id: 4,
-                    nom: "Hind Tazi",
-                    initials: "HT",
-                    module: "Programmation JavaScript",
-                    date: "25/03/2026",
-                    statut: "non-justifiee",
-                    statutLabel: "Non justifiée",
-                },
-                {
-                    id: 5,
-                    nom: "Omar Cherkaoui",
-                    initials: "OC",
-                    module: "Base de données",
-                    date: "24/03/2026",
-                    statut: "justifiee",
-                    statutLabel: "Justifiée",
-                },
-            ],
-        };
+            ];
+        },
+        absencesRecentes() {
+            return this.absences.slice(0, 5);
+        },
     },
-    mounted() {
-        this.initBarChart();
-        this.initDoughnutChart();
+    async mounted() {
+        await this.chargerDonnees();
     },
     methods: {
+        async chargerDonnees() {
+            try {
+                this.loading = true;
+                const [resAbs, resEts, resProfs, resMods] = await Promise.all([
+                    axios.get("/absences"),
+                    axios.get("/etudiants"),
+                    axios.get("/professeurs"),
+                    axios.get("/modules"),
+                ]);
+                this.absences = resAbs.data;
+                this.etudiants = resEts.data;
+                this.professeurs = resProfs.data;
+                this.modules = resMods.data;
+
+                this.$nextTick(() => {
+                    this.initBarChart();
+                    this.initDoughnutChart();
+                });
+            } catch (err) {
+                console.error("Erreur", err);
+            } finally {
+                this.loading = false;
+            }
+        },
         initBarChart() {
-            new Chart(document.getElementById("barChart"), {
+            if (this.barChart) this.barChart.destroy();
+
+            // Compter absences par module
+            const countByModule = {};
+            this.absences.forEach((a) => {
+                const nom = a.seance?.module?.nom || "Inconnu";
+                countByModule[nom] = (countByModule[nom] || 0) + 1;
+            });
+
+            this.barChart = new Chart(document.getElementById("barChart"), {
                 type: "bar",
                 data: {
-                    labels: ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"],
+                    labels: Object.keys(countByModule),
                     datasets: [
                         {
                             label: "Absences",
-                            data: [18, 32, 15, 28, 12],
+                            data: Object.values(countByModule),
                             backgroundColor: "#3c9298",
                             borderRadius: 6,
                             borderSkipped: false,
@@ -206,39 +231,78 @@ export default {
             });
         },
         initDoughnutChart() {
-            new Chart(document.getElementById("doughnutChart"), {
-                type: "doughnut",
-                data: {
-                    labels: ["3IIR", "2GC", "1CP", "autres"],
-                    datasets: [
-                        {
-                            data: [42, 28, 20, 10],
-                            backgroundColor: [
-                                "#3c9298",
-                                "#185FA5",
-                                "#854F0B",
-                                "#e5e7eb",
-                            ],
-                            borderWidth: 0,
-                            hoverOffset: 4,
-                        },
-                    ],
-                },
-                options: {
-                    responsive: true,
-                    cutout: "70%",
-                    plugins: {
-                        legend: {
-                            position: "bottom",
-                            labels: {
-                                font: { size: 11 },
-                                color: "#6b7280",
-                                padding: 12,
+            if (this.doughnutChart) this.doughnutChart.destroy();
+
+            const nonJust = this.absences.filter(
+                (a) => a.statut === "non-justifiee",
+            ).length;
+            const just = this.absences.filter(
+                (a) => a.statut === "justifiee",
+            ).length;
+            const attente = this.absences.filter(
+                (a) => a.statut === "en-attente",
+            ).length;
+
+            this.doughnutChart = new Chart(
+                document.getElementById("doughnutChart"),
+                {
+                    type: "doughnut",
+                    data: {
+                        labels: ["Non justifiées", "Justifiées", "En attente"],
+                        datasets: [
+                            {
+                                data: [nonJust, just, attente],
+                                backgroundColor: [
+                                    "#E24B4A",
+                                    "#3c9298",
+                                    "#EF9F27",
+                                ],
+                                borderWidth: 0,
+                                hoverOffset: 4,
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        cutout: "70%",
+                        plugins: {
+                            legend: {
+                                position: "bottom",
+                                labels: {
+                                    font: { size: 11 },
+                                    color: "#6b7280",
+                                    padding: 12,
+                                },
                             },
                         },
                     },
                 },
+            );
+        },
+        initials(name) {
+            if (!name) return "?";
+            return name
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .toUpperCase()
+                .slice(0, 2);
+        },
+        formatDate(date) {
+            if (!date) return "";
+            return new Date(date).toLocaleDateString("fr-FR", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
             });
+        },
+        statutLabel(statut) {
+            const labels = {
+                justifiee: "Justifiée",
+                "non-justifiee": "Non justifiée",
+                "en-attente": "En attente",
+            };
+            return labels[statut] || statut;
         },
     },
 };
@@ -287,7 +351,6 @@ export default {
     margin: 4px 0 0;
     font-size: 11px;
 }
-
 .charts-grid {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -306,7 +369,6 @@ export default {
     font-weight: 500;
     color: #111827;
 }
-
 .table-card {
     background: white;
     border-radius: 10px;
@@ -324,7 +386,6 @@ export default {
     color: #3c9298;
     text-decoration: none;
 }
-
 .abs-table {
     width: 100%;
     border-collapse: collapse;
@@ -340,15 +401,13 @@ export default {
 .abs-table td {
     padding: 10px 0;
     border-bottom: 0.5px solid #f3f4f6;
-    color: #111827;
 }
 .abs-table tr:last-child td {
     border-bottom: none;
 }
 .muted {
-    color: #6b7280 !important;
+    color: #6b7280;
 }
-
 .etudiant-cell {
     display: flex;
     align-items: center;
@@ -358,7 +417,7 @@ export default {
     width: 26px;
     height: 26px;
     border-radius: 50%;
-    background: #e1f5ee;
+    background: #e8f5f6;
     color: #3c9298;
     font-size: 10px;
     font-weight: 500;
@@ -366,16 +425,14 @@ export default {
     align-items: center;
     justify-content: center;
 }
-
 .badge-statut {
     font-size: 11px;
     padding: 3px 10px;
     border-radius: 20px;
-    font-weight: 400;
 }
 .badge-statut.justifiee {
     background: #e1f5ee;
-    color: #3c9298;
+    color: #085041;
 }
 .badge-statut.non-justifiee {
     background: #fcebeb;

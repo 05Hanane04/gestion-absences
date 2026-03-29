@@ -50,4 +50,9 @@ class AbsenceController extends Controller
                 ->get()
         );
     }
+    public function destroy(Absence $absence)
+{
+    $absence->delete();
+    return response()->json(['message' => 'Supprimé avec succès']);
+}
 }

@@ -1,9 +1,7 @@
 <template>
     <div>
-        <!-- Étape 1 : Choisir module + séance -->
         <div class="step-card" v-if="etape === 1">
             <p class="card-title">
-                <span class="step-badge">1</span>
                 Choisir le module et la séance
             </p>
 
@@ -39,8 +37,6 @@
                     </select>
                 </div>
             </div>
-
-            <!-- Ou créer une nouvelle séance -->
             <div class="nouvelle-seance-section">
                 <p class="ou-label">— Ou créer une nouvelle séance —</p>
                 <div class="form-row">
@@ -88,8 +84,6 @@
                 </button>
             </div>
         </div>
-
-        <!-- Étape 2 : Cocher les absents -->
         <div class="step-card" v-if="etape === 2">
             <div class="step-header">
                 <button class="btn-retour" @click="etape = 1">
@@ -106,7 +100,6 @@
                 {{ seanceInfoLabel }}
             </div>
 
-            <!-- Sélection rapide -->
             <div class="selection-rapide">
                 <button class="btn-select-all" @click="toutSelectionner">
                     Tout cocher
@@ -118,8 +111,6 @@
                     {{ absentsSelectionnes.length }} absent(s) sélectionné(s)
                 </span>
             </div>
-
-            <!-- Liste étudiants -->
             <div
                 v-if="loadingEtudiants"
                 style="text-align: center; padding: 20px; color: #9ca3af"
@@ -247,7 +238,6 @@ export default {
         },
     },
     async mounted() {
-        // Récupérer le module depuis la query si vient du dashboard
         if (this.$route.query.module) {
             this.moduleSelectionne = this.$route.query.module;
         }

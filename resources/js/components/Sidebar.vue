@@ -7,8 +7,6 @@
             </div>
             <span class="brand-name">GestAbsences</span>
         </div>
-
-        <!-- Navigation -->
         <nav class="sidebar-nav">
             <p class="nav-section-label">Principal</p>
 
@@ -27,11 +25,6 @@
                 Professeurs
             </router-link>
 
-            <router-link to="/admin/filieres" class="nav-item">
-                <i class="bi bi-book"></i>
-                Filières
-            </router-link>
-
             <p class="nav-section-label mt-3">Absences</p>
 
             <router-link to="/admin/absences" class="nav-item">
@@ -44,8 +37,6 @@
                 Rapports & Statistiques
             </router-link>
         </nav>
-
-        <!-- User info -->
         <div class="sidebar-user">
             <div class="user-avatar">{{ userInitials }}</div>
             <div class="user-info">
