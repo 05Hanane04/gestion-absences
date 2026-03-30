@@ -9,11 +9,15 @@ use Illuminate\Http\Request;
 class AbsenceController extends Controller
 {
     public function index()
-    {
-        return response()->json(
-            Absence::with(['etudiant.user', 'seance.module'])->latest()->get()
-        );
-    }
+{
+    return response()->json(
+        Absence::with([
+            'etudiant.user',
+            'etudiant.filiere',
+            'seance.module.professeur.user'
+        ])->latest()->get()
+    );
+}
 
     public function store(Request $request)
     {
@@ -42,14 +46,18 @@ class AbsenceController extends Controller
     }
 
     public function parEtudiant($etudiantId)
-    {
-        return response()->json(
-            Absence::with(['seance.module.professeur.user'])
-                ->where('etudiant_id', $etudiantId)
-                ->latest()
-                ->get()
-        );
-    }
+{
+    return response()->json(
+        Absence::with([
+            'etudiant.user',
+            'etudiant.filiere',
+            'seance.module.professeur.user'
+        ])
+        ->where('etudiant_id', $etudiantId)
+        ->latest()
+        ->get()
+    );
+}
     public function destroy(Absence $absence)
 {
     $absence->delete();

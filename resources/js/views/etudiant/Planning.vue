@@ -44,13 +44,6 @@
             </div>
         </div>
 
-        <!-- Légende -->
-        <div class="legend">
-            <div class="legend-item" v-for="m in modules" :key="m.nom">
-                <div class="legend-dot" :style="{ background: m.color }"></div>
-                <span>{{ m.nom }}</span>
-            </div>
-        </div>
     </div>
 </template>
 
@@ -122,16 +115,7 @@ export default {
                     color: "#f7a3dc",
                 },
             ],
-            modules: [
-                { nom: "PHP / Laravel", color: "#3c9298" },
-                { nom: "Réseaux Informatiques", color: "#185FA5" },
-                { nom: "SQL Server", color: "#534AB7" },
-                { nom: "Programmation JavaScript", color: "#854F0B" },
-                { nom: "Base de Données", color: "#983c45" },
-                { nom: "Conception Orientée Objet", color: "#f7a3dc" },
-        
-
-            ],
+           
         };
     },
     computed: {

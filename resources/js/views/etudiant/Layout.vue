@@ -27,18 +27,16 @@
                     Mon profil
                 </router-link>
             </nav>
-
-            <!-- User info -->
             <div class="sidebar-user">
-                <div class="user-avatar">{{ userInitials }}</div>
+                <router-link to="/etudiant/profil" class="user-avatar">
+                    {{ userInitials }}
+                </router-link>
                 <div class="user-info">
                     <p class="user-name">{{ userName }}</p>
                     <p class="user-email">{{ userEmail }}</p>
                 </div>
             </div>
         </div>
-
-        <!-- Main -->
         <div class="main-content">
             <Navbar :title="pageTitle" />
             <div class="page-body">
@@ -169,8 +167,8 @@ export default {
     gap: 10px;
 }
 .user-avatar {
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     background: #e8f5f6;
     color: #3c9298;
@@ -179,6 +177,8 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
+    text-decoration: none;
 }
 .user-info {
     flex: 1;
