@@ -209,4 +209,15 @@ export default {
     background: #eeedfe;
     color: #3c3489;
 }
+@media (max-width: 480px) {
+  .login-wrapper {
+    padding: 16px;
+    align-items: flex-start;
+    padding-top: 40px;
+  }
+  .login-card {
+    padding: 28px 20px;
+    border-radius: 12px;
+  }
+}
 </style>
