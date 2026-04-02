@@ -58,7 +58,6 @@
             </div>
         </div>
 
-        <!-- Filtres + tableau -->
         <div class="table-card">
             <div class="table-top">
                 <p class="card-title">Historique des absences</p>
@@ -77,6 +76,7 @@
                     </select>
                 </div>
             </div>
+
             <div
                 v-if="loading"
                 style="text-align: center; padding: 30px; color: #9ca3af"
@@ -84,51 +84,53 @@
                 <i class="bi bi-arrow-repeat"></i> Chargement...
             </div>
 
-            <table v-else class="abs-table">
-                <thead>
-                    <tr>
-                        <th>Module</th>
-                        <th>Professeur</th>
-                        <th>Date</th>
-                        <th>Séance</th>
-                        <th>Durée</th>
-                        <th>Statut</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="abs in filtered" :key="abs.id">
-                        <td class="bold">{{ abs.seance?.module?.nom }}</td>
-                        <td class="muted">
-                            {{ abs.seance?.module?.professeur?.user?.name }}
-                        </td>
-                        <td class="muted">
-                            {{ formatDate(abs.seance?.date) }}
-                        </td>
-                        <td class="muted">
-                            {{ formatHeure(abs.seance?.heure_debut) }} -
-                            {{ formatHeure(abs.seance?.heure_fin) }}
-                        </td>
-                        <td class="muted">2h</td>
-                        <td>
-                            <span class="badge-statut" :class="abs.statut">
-                                {{ statutLabel(abs.statut) }}
-                            </span>
-                        </td>
-                    </tr>
-                    <tr v-if="filtered.length === 0">
-                        <td
-                            colspan="6"
-                            style="
-                                text-align: center;
-                                padding: 20px;
-                                color: #9ca3af;
-                            "
-                        >
-                            Aucune absence trouvée
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div v-else class="table-wrapper">
+                <table class="abs-table">
+                    <thead>
+                        <tr>
+                            <th>Module</th>
+                            <th>Professeur</th>
+                            <th>Date</th>
+                            <th>Séance</th>
+                            <th>Durée</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="abs in filtered" :key="abs.id">
+                            <td class="bold">{{ abs.seance?.module?.nom }}</td>
+                            <td class="muted">
+                                {{ abs.seance?.module?.professeur?.user?.name }}
+                            </td>
+                            <td class="muted">
+                                {{ formatDate(abs.seance?.date) }}
+                            </td>
+                            <td class="muted">
+                                {{ formatHeure(abs.seance?.heure_debut) }} -
+                                {{ formatHeure(abs.seance?.heure_fin) }}
+                            </td>
+                            <td class="muted">2h</td>
+                            <td>
+                                <span class="badge-statut" :class="abs.statut">
+                                    {{ statutLabel(abs.statut) }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr v-if="filtered.length === 0">
+                            <td
+                                colspan="6"
+                                style="
+                                    text-align: center;
+                                    padding: 20px;
+                                    color: #9ca3af;
+                                "
+                            >
+                                Aucune absence trouvée
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </template>
@@ -151,7 +153,6 @@ export default {
         user() {
             return JSON.parse(localStorage.getItem("user") || "{}");
         },
-
         modules() {
             return [
                 ...new Set(
@@ -203,7 +204,6 @@ export default {
                 const etudiant = resEtudiants.data.find(
                     (e) => e.user_id === this.user.id,
                 );
-
                 if (etudiant) {
                     this.etudiantId = etudiant.id;
                     const res = await axios.get(
@@ -329,10 +329,14 @@ export default {
     border-color: #3c9298;
 }
 
+.table-wrapper {
+    overflow-x: auto;
+}
 .abs-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 13px;
+    min-width: 500px;
 }
 .abs-table th {
     text-align: left;
@@ -355,7 +359,6 @@ export default {
 .muted {
     color: #6b7280;
 }
-
 .badge-statut {
     font-size: 11px;
     padding: 3px 10px;
@@ -372,5 +375,35 @@ export default {
 .badge-statut.en-attente {
     background: #faeeda;
     color: #633806;
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    .stat-value {
+        font-size: 20px;
+    }
+    .table-top {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .filters {
+        width: 100%;
+        flex-direction: column;
+    }
+    .filter-select {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .stat-label {
+        font-size: 11px;
+    }
 }
 </style>

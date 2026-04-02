@@ -1,7 +1,16 @@
 <template>
     <div class="app-layout">
-        <!-- Sidebar -->
-        <div class="sidebar">
+        <div
+            v-if="menuOuvert"
+            class="sidebar-overlay"
+            @click="menuOuvert = false"
+        ></div>
+
+        <button class="hamburger-btn" @click="menuOuvert = !menuOuvert">
+            <i :class="menuOuvert ? 'bi bi-x' : 'bi bi-list'"></i>
+        </button>
+
+        <div class="sidebar" :class="{ 'sidebar-open': menuOuvert }">
             <div class="sidebar-brand">
                 <div class="brand-icon">
                     <i class="bi bi-people-fill"></i>
@@ -12,23 +21,40 @@
             <nav class="sidebar-nav">
                 <p class="nav-section-label">Mon espace</p>
 
-                <router-link to="/etudiant/absences" class="nav-item">
+                <router-link
+                    to="/etudiant/absences"
+                    class="nav-item"
+                    @click="menuOuvert = false"
+                >
                     <i class="bi bi-calendar-x"></i>
                     Mes absences
                 </router-link>
 
-                <router-link to="/etudiant/planning" class="nav-item">
+                <router-link
+                    to="/etudiant/planning"
+                    class="nav-item"
+                    @click="menuOuvert = false"
+                >
                     <i class="bi bi-calendar-week"></i>
                     Mon planning
                 </router-link>
 
-                <router-link to="/etudiant/profil" class="nav-item">
+                <router-link
+                    to="/etudiant/profil"
+                    class="nav-item"
+                    @click="menuOuvert = false"
+                >
                     <i class="bi bi-person-circle"></i>
                     Mon profil
                 </router-link>
             </nav>
+
             <div class="sidebar-user">
-                <router-link to="/etudiant/profil" class="user-avatar">
+                <router-link
+                    to="/etudiant/profil"
+                    class="user-avatar"
+                    @click="menuOuvert = false"
+                >
                     {{ userInitials }}
                 </router-link>
                 <div class="user-info">
@@ -37,6 +63,7 @@
                 </div>
             </div>
         </div>
+
         <div class="main-content">
             <Navbar :title="pageTitle" />
             <div class="page-body">
@@ -52,6 +79,9 @@ import Navbar from "../../components/Navbar.vue";
 export default {
     name: "EtudiantLayout",
     components: { Navbar },
+    data() {
+        return { menuOuvert: false };
+    },
     computed: {
         user() {
             return JSON.parse(localStorage.getItem("user") || "{}");
@@ -98,6 +128,8 @@ export default {
     height: 100vh;
     position: sticky;
     top: 0;
+    transition: transform 0.25s ease;
+    z-index: 100;
 }
 .sidebar-brand {
     padding: 20px;
@@ -179,6 +211,7 @@ export default {
     justify-content: center;
     cursor: pointer;
     text-decoration: none;
+    flex-shrink: 0;
 }
 .user-info {
     flex: 1;
@@ -209,5 +242,62 @@ export default {
     flex: 1;
     overflow-y: auto;
     padding: 24px;
+}
+
+.hamburger-btn {
+    display: none;
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 200;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    border: 0.5px solid #e5e7eb;
+    background: white;
+    color: #3c9298;
+    font-size: 18px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 99;
+}
+
+@media (max-width: 768px) {
+    .hamburger-btn {
+        display: flex;
+    }
+    .sidebar-overlay {
+        display: block;
+    }
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        transform: translateX(-100%);
+    }
+    .sidebar.sidebar-open {
+        transform: translateX(0);
+    }
+    .app-layout {
+        display: block;
+        height: 100vh;
+        overflow-y: auto;
+    }
+    .main-content {
+        height: 100vh;
+    }
+    .page-body {
+        padding: 16px;
+        padding-top: 65px;
+    }
 }
 </style>

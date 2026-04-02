@@ -28,14 +28,15 @@ $user  = Auth::user();
 $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'token' => $token,
-            'user'  => [
-                'id'    => $user->id,
-                'name'  => $user->name,
-                'email' => $user->email,
-                'role'  => $user->role,
-            ]
-        ]);
+    'token' => $token,
+    'user'  => [
+        'id'       => $user->id,
+        'name'     => $user->name,
+        'email'    => $user->email,
+        'role'     => $user->role,
+        'is_admin' => $user->is_admin,
+    ]
+]);
     }
 
     public function logout(Request $request)

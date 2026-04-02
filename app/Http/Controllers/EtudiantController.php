@@ -26,11 +26,12 @@ class EtudiantController extends Controller
         ]);
 
         $user = User::create([
-            'name'     => $request->nom,
-            'email'    => $request->email,
-            'password' => Hash::make($request->cne),
-            'role'     => 'etudiant',
-        ]);
+    'name'     => $request->nom,
+    'email'    => $request->email,
+    'password' => Hash::make($request->cne),
+    'role'     => 'etudiant',
+    'is_admin' => 0,
+]);
 
         $etudiant = Etudiant::create([
             'user_id'    => $user->id,

@@ -1,6 +1,5 @@
 <template>
     <div>
-        <!-- Navigation semaine -->
         <div class="week-nav">
             <button class="btn-week" @click="semainePrecedente">
                 <i class="bi bi-chevron-left"></i>
@@ -13,7 +12,6 @@
             </button>
         </div>
 
-        <!-- Grille planning -->
         <div class="planning-card">
             <div class="planning-grid">
                 <div v-for="jour in jours" :key="jour.nom" class="jour-col">
@@ -43,7 +41,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 </template>
 
@@ -115,7 +112,6 @@ export default {
                     color: "#f7a3dc",
                 },
             ],
-           
         };
     },
     computed: {
@@ -205,7 +201,6 @@ export default {
 .btn-week:hover {
     background: #f3f4f6;
 }
-
 .planning-card {
     background: white;
     border-radius: 10px;
@@ -218,7 +213,7 @@ export default {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 10px;
-    min-width: 600px;
+    min-width: 480px;
 }
 .jour-col {
     display: flex;
@@ -251,7 +246,6 @@ export default {
 .jour-header.today .jour-date {
     color: #3c9298;
 }
-
 .seances-list {
     display: flex;
     flex-direction: column;
@@ -294,25 +288,35 @@ export default {
     padding: 12px 0;
 }
 
-.legend {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-    background: white;
-    border-radius: 10px;
-    border: 0.5px solid #e5e7eb;
-    padding: 12px 16px;
+@media (max-width: 768px) {
+    .week-label {
+        font-size: 12px;
+    }
+    .planning-grid {
+        min-width: 420px;
+    }
+    .seance-module {
+        font-size: 10px;
+    }
+    .seance-heure,
+    .seance-prof,
+    .seance-salle {
+        font-size: 9px;
+    }
+    .jour-nom {
+        font-size: 10px;
+    }
+    .jour-date {
+        font-size: 9px;
+    }
 }
-.legend-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: #6b7280;
-}
-.legend-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
+
+@media (max-width: 480px) {
+    .planning-grid {
+        min-width: 360px;
+    }
+    .week-label {
+        font-size: 11px;
+    }
 }
 </style>

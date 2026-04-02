@@ -1,6 +1,8 @@
 <template>
     <div>
-        <div class="profil-grid">
+        <div v-if="loading" class="loading">Chargement...</div>
+
+        <div v-else class="profil-grid">
             <div class="profil-card">
                 <div class="profil-avatar-section">
                     <div class="big-avatar">{{ userInitials }}</div>
@@ -18,37 +20,37 @@
 
                 <div class="profil-info">
                     <div class="info-row">
-                        <span class="info-label">
-                            <i class="bi bi-credit-card"></i> CNE
-                        </span>
+                        <span class="info-label"
+                            ><i class="bi bi-credit-card"></i> CNE</span
+                        >
                         <span class="info-value">{{ etudiant.cne }}</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">
-                            <i class="bi bi-book"></i> Filière
-                        </span>
+                        <span class="info-label"
+                            ><i class="bi bi-book"></i> Filière</span
+                        >
                         <span class="info-value">{{
                             etudiant.filiere?.nom
                         }}</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">
-                            <i class="bi bi-people"></i> Groupe
-                        </span>
+                        <span class="info-label"
+                            ><i class="bi bi-people"></i> Groupe</span
+                        >
                         <span class="info-value">{{ etudiant.groupe }}</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label">
-                            <i class="bi bi-calendar3"></i> Année
-                        </span>
+                        <span class="info-label"
+                            ><i class="bi bi-calendar3"></i> Année</span
+                        >
                         <span class="info-value">3ème année — 2025/2026</span>
                     </div>
                 </div>
             </div>
+
             <div class="right-col">
                 <div class="resume-card">
                     <p class="card-title">Résumé des absences</p>
-
                     <div class="resume-stats">
                         <div class="resume-stat">
                             <p class="rs-value">{{ totalAbsences }}h</p>
@@ -117,13 +119,12 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="modules-card">
                     <p class="card-title">Absences par module</p>
-
                     <div v-if="absencesParModule.length === 0" class="no-data">
                         Aucune absence enregistrée
                     </div>
-
                     <div
                         v-for="m in absencesParModule"
                         :key="m.module"
@@ -170,12 +171,7 @@ import axios from "../../axios.js";
 export default {
     name: "Profil",
     data() {
-        return {
-            loading: true,
-            seuilMax: 16,
-            etudiant: {},
-            absences: [],
-        };
+        return { loading: true, seuilMax: 16, etudiant: {}, absences: [] };
     },
     computed: {
         user() {
@@ -190,7 +186,7 @@ export default {
                 .slice(0, 2);
         },
         totalAbsences() {
-            return this.absences.reduce((s, a) => s + 2, 0);
+            return this.absences.reduce((s) => s + 2, 0);
         },
         nonJustifiees() {
             return this.absences
@@ -228,7 +224,6 @@ export default {
             try {
                 this.loading = true;
                 const userId = this.user.id;
-
                 const resEtudiants = await axios.get("/etudiants");
                 this.etudiant =
                     resEtudiants.data.find((e) => e.user_id === userId) || {};
@@ -249,6 +244,14 @@ export default {
 </script>
 
 <style scoped>
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: #9ca3af;
+    font-size: 14px;
+}
 .profil-grid {
     display: grid;
     grid-template-columns: 300px 1fr;
@@ -312,7 +315,6 @@ export default {
     border: 0.5px solid #3c9298;
     border-radius: 20px;
 }
-
 .profil-info {
     padding: 16px 20px;
 }
@@ -340,13 +342,11 @@ export default {
     font-weight: 500;
     text-align: right;
 }
-
 .right-col {
     display: flex;
     flex-direction: column;
     gap: 14px;
 }
-
 .resume-card,
 .modules-card {
     background: white;
@@ -360,7 +360,6 @@ export default {
     font-weight: 500;
     color: #111827;
 }
-
 .resume-stats {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -402,7 +401,6 @@ export default {
     font-size: 11px;
     color: #9ca3af;
 }
-
 .progress-section {
     margin-top: 4px;
 }
@@ -431,7 +429,6 @@ export default {
     font-size: 11px;
     color: #9ca3af;
 }
-
 .alert-danger {
     margin-top: 10px;
     padding: 8px 12px;
@@ -443,14 +440,12 @@ export default {
     align-items: center;
     gap: 6px;
 }
-
 .no-data {
     text-align: center;
     color: #9ca3af;
     font-size: 13px;
     padding: 20px 0;
 }
-
 .module-row {
     margin-bottom: 14px;
 }
@@ -497,5 +492,37 @@ export default {
     height: 100%;
     border-radius: 3px;
     transition: width 0.5s;
+}
+
+@media (max-width: 768px) {
+    .profil-grid {
+        grid-template-columns: 1fr;
+    }
+    .resume-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .rs-value {
+        font-size: 18px;
+    }
+    .info-row {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .resume-stats {
+        gap: 8px;
+    }
+    .profil-avatar-section {
+        padding: 20px 16px;
+    }
+    .big-avatar {
+        width: 52px;
+        height: 52px;
+        font-size: 18px;
+    }
+    .profil-name {
+        font-size: 14px;
+    }
 }
 </style>

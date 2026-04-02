@@ -52,48 +52,43 @@
                 ></span>
                 Se connecter
             </button>
-
         </div>
     </div>
 </template>
 
 <script>
-import axios from '../../axios.js'
+import axios from "../../axios.js";
 
 export default {
-  name: 'Login',
-  data() {
-    return {
-      form: { email: '', password: '' },
-      error: '',
-      loading: false
-    }
-  },
-  methods: {
-    async login() {
-      this.error = ''
-      this.loading = true
-      try {
-        const res = await axios.post('/login', this.form)
-
-        // Sauvegarder le token et les infos user
-        localStorage.setItem('token', res.data.token)
-        localStorage.setItem('user',  JSON.stringify(res.data.user))
-
-        // Rediriger selon le rôle
-        const role = res.data.user.role
-        if (role === 'admin')     this.$router.push('/admin/dashboard')
-        else if (role === 'prof') this.$router.push('/prof/dashboard')
-        else                      this.$router.push('/etudiant/profil')
-
-      } catch (err) {
-        this.error = err.response?.data?.message || 'Erreur de connexion.'
-      } finally {
-        this.loading = false
-      }
-    }
-  }
-}
+    name: "Login",
+    data() {
+        return {
+            form: { email: "", password: "" },
+            error: "",
+            loading: false,
+        };
+    },
+    methods: {
+        async login() {
+            this.error = "";
+            this.loading = true;
+            try {
+                const res = await axios.post("/login", this.form);
+                localStorage.setItem("token", res.data.token);
+                localStorage.setItem("user", JSON.stringify(res.data.user));
+                const role = res.data.user.role;
+                if (role === "admin") this.$router.push("/admin/dashboard");
+                else if (role === "prof") this.$router.push("/prof/dashboard");
+                else this.$router.push("/etudiant/profil");
+            } catch (err) {
+                this.error =
+                    err.response?.data?.message || "Erreur de connexion.";
+            } finally {
+                this.loading = false;
+            }
+        },
+    },
+};
 </script>
 
 <style scoped>
@@ -134,11 +129,6 @@ export default {
     font-size: 15px;
     font-weight: 500;
 }
-.brand-sub {
-    margin: 0;
-    font-size: 12px;
-    color: #6b7280;
-}
 .title {
     font-size: 22px;
     font-weight: 500;
@@ -160,7 +150,7 @@ export default {
 }
 .form-control:focus {
     border-color: #3c9298;
-    box-shadow: 0 0 0 3px rgba(24, 95, 165, 0.1);
+    box-shadow: 0 0 0 3px rgba(60, 146, 152, 0.1);
 }
 .forgot-link {
     font-size: 12px;
@@ -174,50 +164,19 @@ export default {
     font-size: 14px;
 }
 .btn-primary:hover {
-    background: #3c9298;
+    background: #2d7a7f;
 }
-.roles-section {
-    margin-top: 24px;
-    padding-top: 20px;
-    border-top: 0.5px solid #e5e7eb;
-    text-align: center;
-}
-.roles-label {
-    font-size: 12px;
-    color: #9ca3af;
-    margin-bottom: 10px;
-}
-.roles-badges {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-}
-.badge-role {
-    font-size: 11px;
-    padding: 4px 10px;
-    border-radius: 20px;
-}
-.badge-role.admin {
-    background: #e6f1fb;
-    color: #0c447c;
-}
-.badge-role.prof {
-    background: #e1f5ee;
-    color: #085041;
-}
-.badge-role.etudiant {
-    background: #eeedfe;
-    color: #3c3489;
-}
-@media (max-width: 480px) {
-  .login-wrapper {
-    padding: 16px;
-    align-items: flex-start;
-    padding-top: 40px;
-  }
-  .login-card {
-    padding: 28px 20px;
-    border-radius: 12px;
-  }
+
+@media (max-width: 768px) {
+    .login-wrapper {
+        align-items: flex-start;
+        padding: 20px 16px;
+        padding-top: 50px;
+    }
+    .login-card {
+        padding: 28px 20px;
+        border-radius: 12px;
+        max-width: 100%;
+    }
 }
 </style>

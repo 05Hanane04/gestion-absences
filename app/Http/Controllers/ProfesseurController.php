@@ -24,12 +24,13 @@ class ProfesseurController extends Controller
             'grade'      => 'nullable|string',
         ]);
 
-        $user = User::create([
-            'name'     => $request->nom,
-            'email'    => $request->email,
-            'password' => Hash::make('prof123'),
-            'role'     => 'prof',
-        ]);
+       $user = User::create([
+    'name'     => $request->nom,
+    'email'    => $request->email,
+    'password' => Hash::make('prof123'),
+    'role'     => 'prof',
+    'is_admin' => 0,
+]);
 
         $prof = Professeur::create([
             'user_id'    => $user->id,
