@@ -25,4 +25,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('absences/{absence}/statut',[AbsenceController::class, 'updateStatut']);
     Route::get('absences/etudiant/{etudiantId}',[AbsenceController::class, 'parEtudiant']);
     Route::delete('absences/{absence}', [AbsenceController::class, 'destroy']);
+    Route::get('prof/modules', [ModuleController::class, 'mesModules']);
+    Route::get('prof/seances', [SeanceController::class, 'parModule']);
+    Route::post('prof/seances', [SeanceController::class, 'store']);
 });

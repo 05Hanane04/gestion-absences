@@ -425,6 +425,7 @@ export default {
     transition: width 0.5s;
 }
 .progress-note {
+
     margin: 6px 0 0;
     font-size: 11px;
     color: #9ca3af;

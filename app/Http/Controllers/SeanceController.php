@@ -13,18 +13,21 @@ class SeanceController extends Controller
         );
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'module_id'   => 'required|exists:modules,id',
-            'date'        => 'required|date',
-            'heure_debut' => 'required',
-            'heure_fin'   => 'required',
-            'salle'       => 'nullable|string',
-        ]);
-        $seance = Seance::create($request->all());
-        return response()->json($seance->load('module'), 201);
-    }
+public function store(Request $request)
+{
+    $request->validate([
+        'module_id'   => 'required|exists:modules,id',
+        'date'        => 'required|date',
+        'heure_debut' => 'required',
+        'heure_fin'   => 'required',
+        'filiere'     => 'nullable|in:IIR,GC,GF',
+        'niveau'      => 'nullable|in:2A,3A',
+        'groupe'      => 'nullable|in:G1,G2,G3,G4',
+    ]);
+
+    $seance = Seance::create($request->all());
+    return response()->json($seance, 201);
+}
 
     public function destroy(Seance $seance)
     {

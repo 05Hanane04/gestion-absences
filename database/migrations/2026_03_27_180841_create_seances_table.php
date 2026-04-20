@@ -18,6 +18,10 @@ return new class extends Migration
         $table->time('heure_debut');
         $table->time('heure_fin');
         $table->string('salle')->nullable();
+        $table->string('filiere')->nullable(); 
+        $table->string('niveau')->nullable();
+        $table->string('groupe')->nullable(); 
+        
         $table->timestamps();
     });
 }

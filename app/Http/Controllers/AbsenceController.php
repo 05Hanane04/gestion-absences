@@ -63,4 +63,24 @@ class AbsenceController extends Controller
     $absence->delete();
     return response()->json(['message' => 'Supprimé avec succès']);
 }
+public function getEtudiants(Request $request)
+{
+    $query = Etudiant::with('user');
+
+    if ($request->filiere_id) {
+        $query->where('filiere_id', $request->filiere_id);
+    }
+
+    if ($request->niveau) {
+        $query->whereHas('filiere', function($q) use ($request) {
+            $q->where('niveau', $request->niveau);
+        });
+    }
+
+    if ($request->groupe) {
+        $query->where('groupe', $request->groupe);
+    }
+
+    return response()->json($query->get());
+}
 }
