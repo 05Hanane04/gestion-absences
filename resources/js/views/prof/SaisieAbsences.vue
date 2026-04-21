@@ -152,7 +152,6 @@
                     >{{ etudiantsFiltres.length }} étudiant(s)</span
                 >
             </div>
-
             <div class="selection-rapide">
                 <button class="btn-select-all" @click="toutSelectionner">
                     Tout cocher

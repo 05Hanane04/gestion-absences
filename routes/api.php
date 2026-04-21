@@ -25,9 +25,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('modules', ModuleController::class);
     Route::get('modules/professeur/{professeurId}', [ModuleController::class, 'parProfesseur']);
-
     Route::apiResource('seances', SeanceController::class);
-
     Route::get('absences',                       [AbsenceController::class, 'index']);
     Route::post('absences',                      [AbsenceController::class, 'store']);
     Route::put('absences/{absence}/statut',      [AbsenceController::class, 'updateStatut']);

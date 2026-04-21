@@ -14,8 +14,6 @@ class EtudiantController extends Controller
             Etudiant::with(['user', 'filiere'])->get()
         );
     }
-
-    // Étudiants filtrés par filière, niveau et groupe
     public function filtrer(Request $request)
     {
         $query = Etudiant::with(['user', 'filiere']);
