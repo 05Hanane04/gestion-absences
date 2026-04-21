@@ -15,6 +15,28 @@ class EtudiantController extends Controller
         );
     }
 
+    // Étudiants filtrés par filière, niveau et groupe
+    public function filtrer(Request $request)
+    {
+        $query = Etudiant::with(['user', 'filiere']);
+
+        if ($request->filiere_id) {
+            $query->where('filiere_id', $request->filiere_id);
+        }
+
+        if ($request->groupe) {
+            $query->where('groupe', $request->groupe);
+        }
+
+        if ($request->niveau) {
+            $query->whereHas('filiere', function($q) use ($request) {
+                $q->where('niveau', $request->niveau);
+            });
+        }
+
+        return response()->json($query->get());
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -26,12 +48,12 @@ class EtudiantController extends Controller
         ]);
 
         $user = User::create([
-    'name'     => $request->nom,
-    'email'    => $request->email,
-    'password' => Hash::make($request->cne),
-    'role'     => 'etudiant',
-    'is_admin' => 0,
-]);
+            'name'     => $request->nom,
+            'email'    => $request->email,
+            'password' => Hash::make($request->cne),
+            'role'     => 'etudiant',
+            'is_admin' => 0,
+        ]);
 
         $etudiant = Etudiant::create([
             'user_id'    => $user->id,

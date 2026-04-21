@@ -14,18 +14,23 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me',      [AuthController::class, 'me']);
+
     Route::apiResource('filieres', FiliereController::class);
+
     Route::apiResource('etudiants', EtudiantController::class);
     Route::get('etudiants/{etudiant}/absences', [EtudiantController::class, 'absences']);
+    Route::get('etudiants-filtrer', [EtudiantController::class, 'filtrer']);
+
     Route::apiResource('professeurs', ProfesseurController::class);
+
     Route::apiResource('modules', ModuleController::class);
+    Route::get('modules/professeur/{professeurId}', [ModuleController::class, 'parProfesseur']);
+
     Route::apiResource('seances', SeanceController::class);
-    Route::get('absences',[AbsenceController::class, 'index']);
-    Route::post('absences',[AbsenceController::class, 'store']);
-    Route::put('absences/{absence}/statut',[AbsenceController::class, 'updateStatut']);
-    Route::get('absences/etudiant/{etudiantId}',[AbsenceController::class, 'parEtudiant']);
-    Route::delete('absences/{absence}', [AbsenceController::class, 'destroy']);
-    Route::get('prof/modules', [ModuleController::class, 'mesModules']);
-    Route::get('prof/seances', [SeanceController::class, 'parModule']);
-    Route::post('prof/seances', [SeanceController::class, 'store']);
+
+    Route::get('absences',                       [AbsenceController::class, 'index']);
+    Route::post('absences',                      [AbsenceController::class, 'store']);
+    Route::put('absences/{absence}/statut',      [AbsenceController::class, 'updateStatut']);
+    Route::get('absences/etudiant/{etudiantId}', [AbsenceController::class, 'parEtudiant']);
+    Route::delete('absences/{absence}',          [AbsenceController::class, 'destroy']);
 });

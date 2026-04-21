@@ -3,9 +3,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Module;
 use Illuminate\Http\Request;
+
 class ModuleController extends Controller
 {
-    
     public function index()
     {
         return response()->json(
@@ -31,12 +31,19 @@ class ModuleController extends Controller
         $module->update($request->all());
         return response()->json($module->load(['filiere', 'professeur.user']));
     }
-    
+
     public function destroy(Module $module)
     {
         $module->delete();
         return response()->json(['message' => 'Supprimé avec succès']);
     }
 
-    
+    public function parProfesseur($professeurId)
+    {
+        return response()->json(
+            Module::with(['filiere', 'professeur.user'])
+                ->where('professeur_id', $professeurId)
+                ->get()
+        );
+    }
 }
